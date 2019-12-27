@@ -1,4 +1,4 @@
-package com.zglu.maven;
+package com.zglu.redis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

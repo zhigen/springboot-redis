@@ -53,3 +53,15 @@
         11.1、项目目录内，执行命令
             git init
             git remote add origin https://github.com/zhigen/project.git
+            
+**redis**
+
+    1、启动redis
+        1.1、docker pull redis
+        1.2、docker run -d -p 6379:6379 -v /F/data/docker/redis:/data redis --appendonly yes
+    2、编写代码
+        2.1、pom.xml文件引入依赖
+        2.2、application.properties添加配置项
+        2.3、编写配置类
+        2.4、编写测试用例
+    3、测试        
