@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.LocalTime;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,9 +45,7 @@ public class TestController {
         try {
             Thread.sleep(3000);
             Integer i = (Integer) session.getAttribute("temp");
-            if (i == null) {
-                i = 0;
-            }
+            i = Optional.ofNullable(i).orElse(0);
             session.setAttribute("temp", ++i);
             return LocalTime.now() + "：第" + i + "次访问";
         } finally {
