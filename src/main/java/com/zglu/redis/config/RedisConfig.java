@@ -6,6 +6,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +22,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.util.StringUtils;
 
 /**
  * @author zglu
@@ -49,5 +55,16 @@ public class RedisConfig {
                 .cacheDefaults(config)
                 .transactionAware()
                 .build();
+    }
+
+    @Bean
+    public RedissonClient redissonClient(RedisProperties redisProperties) {
+        Config config = new Config();
+        SingleServerConfig singleServerConfig =
+                config.useSingleServer().setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort()).setDatabase(redisProperties.getDatabase());
+        if (!StringUtils.isEmpty(redisProperties.getPassword())) {
+            singleServerConfig.setPassword(redisProperties.getPassword());
+        }
+        return Redisson.create(config);
     }
 }

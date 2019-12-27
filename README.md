@@ -75,3 +75,11 @@
         3.2、不设置cookie.max-age，开启会话后，重启浏览器，会话丢失，证明cookie.max-age默认值为-1
         3.3、设置cookie.max-age=2100，开启会话后，重启浏览器，会话不丢失，查看cookie可看到过期时间为2100秒后
         3.4、localhost:8080/out，将cookie.max-age设置为0，cookie失效，会话丢失
+        
+**redisson锁**     
+
+    1、pom.xml引入依赖
+    2、编写bean类
+    3、编写测试类及测试方法
+        3.1、浏览器打开两个选项卡
+        3.2、同时访问localhost:8080/lock，观察发现后面访问的选项卡，会在前一个选项卡执行完之后，才开始执行
