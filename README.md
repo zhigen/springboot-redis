@@ -65,3 +65,13 @@
         2.3、编写配置类
         2.4、编写测试用例
     3、测试        
+    
+**redis管理session**
+    
+    1、pom.xml引入依赖
+    2、application.properties配置cookie过期时间，默认值-1为“浏览会话结束时”过期
+    3、编写测试类及测试方法
+        3.1、localhost:8080/info开启会话后，重启服务，会话不丢失，证明会话已持久到redis
+        3.2、不设置cookie.max-age，开启会话后，重启浏览器，会话丢失，证明cookie.max-age默认值为-1
+        3.3、设置cookie.max-age=2100，开启会话后，重启浏览器，会话不丢失，查看cookie可看到过期时间为2100秒后
+        3.4、localhost:8080/out，将cookie.max-age设置为0，cookie失效，会话丢失
