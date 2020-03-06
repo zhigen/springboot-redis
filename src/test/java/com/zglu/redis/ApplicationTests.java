@@ -2,6 +2,7 @@ package com.zglu.redis;
 
 import com.zglu.redis.service.TestService;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ class ApplicationTests {
     private TestService testService;
 
     @Test
-    void contextLoads() {
+    void contextLoads(String test) {
+        Assertions.assertNotNull(test, "test");
         log.info("生成缓存");
         testService.get("1");
         testService.get("2");
