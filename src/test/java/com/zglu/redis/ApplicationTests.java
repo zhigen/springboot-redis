@@ -21,8 +21,8 @@ class ApplicationTests {
     private TestService testService;
 
     @Test
-    void contextLoads(String test) {
-        Assertions.assertNotNull(test, "test");
+    void contextLoads() {
+        Assertions.assertNotNull(testService, "testService not be null");
         log.info("生成缓存");
         testService.get("1");
         testService.get("2");
