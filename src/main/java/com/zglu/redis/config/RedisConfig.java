@@ -60,8 +60,9 @@ public class RedisConfig {
     @Bean
     public RedissonClient redissonClient(RedisProperties redisProperties) {
         Config config = new Config();
-        SingleServerConfig singleServerConfig =
-                config.useSingleServer().setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort()).setDatabase(redisProperties.getDatabase());
+        SingleServerConfig singleServerConfig = config.useSingleServer();
+        singleServerConfig.setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort());
+        singleServerConfig.setDatabase(redisProperties.getDatabase());
         if (!StringUtils.isEmpty(redisProperties.getPassword())) {
             singleServerConfig.setPassword(redisProperties.getPassword());
         }
