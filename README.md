@@ -24,22 +24,22 @@
     3.2、application.properties添加配置项
     3.3、编写配置类RedisConfig
     3.4、编写测试用例
-    3.5、测试
+    3.5、http://localhost:8080/swagger-ui.html测试并观察redis生成情况及后台打印穿透情况
     
 ## <div id="04"></div>
 ## 4 redis管理session    
     4.1、pom.xml引入依赖
     4.2、application.properties配置cookie过期时间，默认值-1为“浏览会话结束时”过期
     4.3、编写测试类及测试方法
-        4.3.1、localhost:8080/info开启会话后，重启服务，会话不丢失，证明会话已持久到redis
+        4.3.1、GET http://localhost:8080/session开启会话后，重启服务，会话不丢失，证明会话已持久到redis
         4.3.2、不设置cookie.max-age，开启会话后，重启浏览器，会话丢失，证明cookie.max-age默认值为-1
         4.3.3、设置cookie.max-age=2100，开启会话后，重启浏览器，会话不丢失，查看cookie可看到过期时间为2100秒
-        4.3.4、localhost:8080/out，将cookie.max-age设置为0，cookie失效，会话丢失
-        
+        4.3.4、DELETE http://localhost:8080/session，将cookie.max-age设置为0，cookie失效，会话丢失
+
 ## <div id="05"></div>
 ## 5 redisson锁
     5.1、pom.xml引入依赖
-    5.2、编写bean类
+    5.2、编写配置类RedisConfig
     5.3、编写测试类及测试方法
         5.3.1、浏览器打开两个选项卡
-        5.3.2、同时访问localhost:8080/lock，观察发现后面访问的选项卡，会在前一个选项卡执行完之后，才开始执行
+        5.3.2、同时访问http://localhost:8080/lock，观察发现后面访问的选项卡，会在前一个选项卡执行完之后，才可以执行

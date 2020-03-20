@@ -1,21 +1,21 @@
 package com.zglu.redis.controller;
 
-import com.zglu.redis.dao.User;
-import com.zglu.redis.service.TestService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.time.LocalTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -27,65 +27,37 @@ import java.util.concurrent.TimeUnit;
 public class TestController {
 
     private final RedissonClient redissonClient;
-    private final TestService testService;
 
-    @PostMapping("/test")
-    @ApiOperation("增")
-    public User add(@RequestBody User user) {
-        return testService.add(user);
+    @GetMapping("/session")
+    @ApiOperation("获取当前session")
+    public String info(HttpServletRequest request) {
+        return request.getSession().getId();
     }
 
-    @GetMapping("/user/{id}")
-    @ApiOperation("查")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", dataType = "string", name = "id", value = "id", required = true),
-    })
-    public User get(@PathVariable String id) {
-        return testService.get(id);
-    }
-
-    @GetMapping("/user")
-    @ApiOperation("查")
-    public Map<String, User> all() {
-        return testService.all();
-    }
-
-    @PutMapping("/user")
-    @ApiOperation("覆盖写入")
-    public User put(@RequestBody User user) {
-        return testService.put(user);
-    }
-
-    @DeleteMapping("/user/{id}")
-    @ApiOperation("删")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "path", dataType = "string", name = "id", value = "id", required = true),
-    })
-    public void remove(@PathVariable String id) {
-        testService.remove(id);
-    }
-
-    @GetMapping("/info")
-    public String info(HttpSession session) {
-        return session.getId();
-    }
-
-    @GetMapping("/out")
-    public void out(HttpServletResponse response) throws IOException {
+    @DeleteMapping("/session")
+    @ApiOperation("清除当前session")
+    public void out(HttpServletResponse response) {
         // 清除Cookie方式退出登录
         Cookie c = new Cookie("SESSION", "");
         c.setHttpOnly(true);
         c.setMaxAge(0);
         response.addCookie(c);
-        response.sendRedirect("/info");
     }
 
-    @GetMapping("/lock")
-    public String lock(HttpSession session) throws InterruptedException {
+    @GetMapping("/lock/{seconds}")
+    @ApiOperation("同一session加锁")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "path", dataType = "long", name = "seconds", value = "调用时长", required = true),
+    })
+    public String lock(HttpServletRequest request, @PathVariable long seconds) throws InterruptedException {
+        HttpSession session = request.getSession();
         RLock rLock = redissonClient.getLock("lock" + session.getId());
-        rLock.lock(5, TimeUnit.SECONDS);
+        if (rLock.isLocked()) {
+            return "已被锁住";
+        }
+        rLock.lock(10, TimeUnit.SECONDS);
         try {
-            Thread.sleep(3000);
+            Thread.sleep(seconds * 1000);
             Integer i = (Integer) session.getAttribute("temp");
             i = Optional.ofNullable(i).orElse(0);
             session.setAttribute("temp", ++i);
@@ -94,4 +66,5 @@ public class TestController {
             rLock.unlock();
         }
     }
+
 }
