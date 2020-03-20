@@ -30,13 +30,13 @@ public class TestController {
 
     @GetMapping("/session")
     @ApiOperation("获取当前session")
-    public String info(HttpServletRequest request) {
+    public String get(HttpServletRequest request) {
         return request.getSession().getId();
     }
 
     @DeleteMapping("/session")
     @ApiOperation("清除当前session")
-    public void out(HttpServletResponse response) {
+    public void remove(HttpServletResponse response) {
         // 清除Cookie方式退出登录
         Cookie c = new Cookie("SESSION", "");
         c.setHttpOnly(true);
