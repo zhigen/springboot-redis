@@ -13,6 +13,7 @@ import org.redisson.config.SingleServerConfig;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -23,6 +24,9 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * @author zglu
@@ -67,5 +71,24 @@ public class RedisConfig {
             singleServerConfig.setPassword(redisProperties.getPassword());
         }
         return Redisson.create(config);
+    }
+
+    /**
+     * 注解key生成器
+     *
+     * @return key生成器
+     */
+    @Bean
+    public KeyGenerator antKeyGenerator() {
+        return (target, method, params) -> {
+            StringBuilder sb = new StringBuilder();
+            String className = target.getClass().getName();
+            String targetName = className.substring(className.lastIndexOf('.') + 1).replace("Dao", "");
+            sb.append(targetName).append(":");
+            sb.append(method.getName()).append(":");
+            String paramsStr = Arrays.stream(params).map(m -> m != null ? m.toString() : "").collect(Collectors.joining(","));
+            sb.append(paramsStr);
+            return sb.toString();
+        };
     }
 }
