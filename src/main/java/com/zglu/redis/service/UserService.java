@@ -13,8 +13,7 @@ import java.util.*;
 @Service
 @AllArgsConstructor
 public class UserService {
-
-    private UserDao userDao;
+    private final UserDao userDao;
 
     public User add(User user) {
         return userDao.add(user);
@@ -24,16 +23,12 @@ public class UserService {
         return userDao.get(id);
     }
 
-    public List<User> list() {
-        return userDao.list();
+    public List<User> get() {
+        return userDao.get();
     }
 
-    public User put(User user) {
-        User old = this.get(user.getId());
-        if (old == null) {
-            return this.add(user);
-        }
-        return userDao.put(old, user);
+    public User set(User user) {
+        return userDao.set(user);
     }
 
     public void remove(Long id) {

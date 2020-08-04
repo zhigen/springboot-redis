@@ -3,17 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.5.RELEASE</version>
+    </parent>
 
     <groupId>com.zglu</groupId>
     <artifactId>springboot-redis</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.2.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
 
     <properties>
         <java.version>1.8</java.version>
@@ -33,24 +31,22 @@
             <version>2.5.0</version>
         </dependency>
 
-        <!-- redisson锁依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- redisson -->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
             <version>3.11.1</version>
         </dependency>
 
-        <!-- redis管理session依赖 -->
+        <!-- redis托管session -->
         <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
-            <version>2.1.7.RELEASE</version>
-        </dependency>
-
-        <!-- redis序列化LocalDateTime报错依赖 -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
         <!-- redis -->
@@ -59,14 +55,13 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
-        <!-- 引入lombok插件依赖 -->
+        <!-- lombok依赖 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
 
-        <!-- 引入log4j2依赖 -->
+        <!-- log4j2依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
@@ -74,8 +69,8 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <!-- 去除log4j依赖 -->
+            <artifactId>spring-boot-starter</artifactId>
+            <!-- 排除logging依赖 -->
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>

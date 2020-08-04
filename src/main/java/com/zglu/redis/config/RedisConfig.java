@@ -19,6 +19,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -36,6 +39,11 @@ import java.util.stream.Collectors;
 @EnableRedisHttpSession
 public class RedisConfig {
 
+    /**
+     * 缓存值json序列化
+     *
+     * @return 序列化器
+     */
     private Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer() {
         ObjectMapper om = new ObjectMapper();
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -55,10 +63,44 @@ public class RedisConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer()));
 
-        return RedisCacheManager.builder(redisConnectionFactory)
+        return RedisCacheManager.builder(new MyRedisCacheWriter(redisConnectionFactory))
                 .cacheDefaults(config)
                 .transactionAware()
                 .build();
+    }
+
+    private <T> RedisTemplate<String, T> createRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, T> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer());
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+
+    @Bean
+    public <T> RedisTemplate<String, T> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        return this.createRedisTemplate(redisConnectionFactory);
+    }
+
+    private LettuceConnectionFactory lettuceConnectionFactory(RedisProperties redisProperties) {
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+        configuration.setHostName(redisProperties.getHost());
+        configuration.setPort(redisProperties.getPort());
+        configuration.setPassword(redisProperties.getPassword());
+        configuration.setDatabase(11);
+
+        LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(configuration);
+        connectionFactory.afterPropertiesSet();
+        return connectionFactory;
+    }
+
+    @Bean
+    public <T> RedisTemplate<String, T> redisTemplateCommon(RedisProperties redisProperties) {
+        LettuceConnectionFactory lettuceConnectionFactory = this.lettuceConnectionFactory(redisProperties);
+        return this.createRedisTemplate(lettuceConnectionFactory);
     }
 
     @Bean
@@ -66,10 +108,10 @@ public class RedisConfig {
         Config config = new Config();
         SingleServerConfig singleServerConfig = config.useSingleServer();
         singleServerConfig.setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort());
-        singleServerConfig.setDatabase(redisProperties.getDatabase());
         if (!StringUtils.isEmpty(redisProperties.getPassword())) {
             singleServerConfig.setPassword(redisProperties.getPassword());
         }
+        singleServerConfig.setDatabase(redisProperties.getDatabase());
         return Redisson.create(config);
     }
 
@@ -82,13 +124,11 @@ public class RedisConfig {
     public KeyGenerator antKeyGenerator() {
         return (target, method, params) -> {
             StringBuilder sb = new StringBuilder();
-            String className = target.getClass().getName();
-            String targetName = className.substring(className.lastIndexOf('.') + 1).replace("Dao", "");
-            sb.append(targetName).append(":");
             sb.append(method.getName()).append(":");
             String paramsStr = Arrays.stream(params).map(m -> m != null ? m.toString() : "").collect(Collectors.joining(","));
             sb.append(paramsStr);
             return sb.toString();
         };
     }
+
 }

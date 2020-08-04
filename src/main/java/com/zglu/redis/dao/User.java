@@ -13,9 +13,9 @@ public class User {
     private String name;
     private LocalDateTime time = LocalDateTime.now();
 
-    public void put(User user) {
-        this.id = user.getId();
+    public void set(User user) {
         this.name = user.getName();
         this.time = user.getTime();
     }
+
 }
