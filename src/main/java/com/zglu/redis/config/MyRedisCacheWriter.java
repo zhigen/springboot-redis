@@ -274,7 +274,7 @@ public class MyRedisCacheWriter implements RedisCacheWriter {
 
         try {
 
-            while (doCheckLock(name, connection)) {
+            while (Boolean.valueOf(true).equals(doCheckLock(name, connection))) {
                 Thread.sleep(sleepTime.toMillis());
             }
         } catch (InterruptedException ex) {
