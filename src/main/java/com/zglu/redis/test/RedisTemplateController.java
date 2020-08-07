@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
@@ -26,7 +27,7 @@ public class RedisTemplateController {
     @PostMapping
     @ApiOperation("生成缓存")
     public void add() {
-        redisTemplate.opsForValue().set("a", 1);
+        redisTemplate.opsForValue().set("a", 1, 60, TimeUnit.MINUTES);
     }
 
     @PostMapping("/common")
